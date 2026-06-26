@@ -5,8 +5,7 @@ using UnityEngine;
 public class HostCreateGame : MonoBehaviour
 {
     public TMP_InputField UsernameField;
-    public GameObject ThisMenu;
-    public GameObject Game;
+    public GameObject NextMenu;
     public void CreateGame()
     {
         if(UsernameField.text == "")
@@ -20,7 +19,6 @@ public class HostCreateGame : MonoBehaviour
         ClientNetwork.Username = UsernameField.text;
         GameObject ServerObject = new GameObject("ServerNetwork");
         var ServerNetwork = ServerObject.AddComponent<ServerNetwork>();
-        Game.SetActive(true);
-        ThisMenu.SetActive(false);
+        NextMenu.SetActive(true);
     }
 }

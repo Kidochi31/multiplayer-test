@@ -11,5 +11,9 @@ public class HostOnly : MonoBehaviour
         {
             HostOnlyObject.SetActive(false);
         }
+        else
+        {
+            HostOnlyObject.SetActive(true);
+        }
     }
 }

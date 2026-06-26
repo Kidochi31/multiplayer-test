@@ -33,10 +33,5 @@ public class ServerNetwork : MonoBehaviour
         {
             CurrentConnections.Remove(c);
         }
-
-        foreach(var c in CurrentConnections)
-        {
-            Debug.Log(Socket.Connections[c].State);
-        }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class ClientChat : MonoBehaviour
@@ -9,11 +10,18 @@ public class ClientChat : MonoBehaviour
     public TMP_Text ChatText;
     public TMP_InputField ChatInput;
     private ClientNetwork? Client;
+    public CheckDisconnect CheckDisconnect;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void OnEnable()
     {
-        Client = FindAnyObjectByType<ClientNetwork>();
-        Debug.Log(Client);
+        var newClient = FindAnyObjectByType<ClientNetwork>();
+        if(newClient != Client)
+        {
+            CurrentText = "";
+            ChatText.text = CurrentText;
+        }
+        Client = newClient;
+        CheckDisconnect.gameObject.SetActive(true);
     }
 
     // Update is called once per frame
@@ -21,16 +29,15 @@ public class ClientChat : MonoBehaviour
     {
         if(Client != null)
         {
-            if(Client.CurrentConnection is not null)
+            while (Client.CurrentConnection.ReliableOrderedMessagesAvailable)
             {
-                while (Client.CurrentConnection.ReliableOrderedMessagesAvailable)
-                {
-                    byte[] messageBytes = Client.CurrentConnection.DequeueReliableOrderedMessage()!;
-                    string message = Encoding.UTF8.GetString(messageBytes);
-                    CurrentText += message + "\n";
-                    ChatText.text = CurrentText;
-                }
+                byte[] messageBytes = Client.CurrentConnection.DequeueReliableOrderedMessage()!;
+                string message = Encoding.UTF8.GetString(messageBytes);
+                CurrentText += message + "\n";
+                ChatText.text = CurrentText;
             }
+
+            
         }
         
     }
@@ -46,19 +53,12 @@ public class ClientChat : MonoBehaviour
 
         if(Client != null)
         {
-            if(Client.CurrentConnection is not null)
-            {
-                string message = Client.Username + ": " + text;
-                byte[] messageBytes = Encoding.UTF8.GetBytes(message);
-                Client.CurrentConnection.SendReliableOrdered(messageBytes, DateTime.UtcNow);
-                CurrentText += message + "\n";
-                ChatText.text = CurrentText;
-                Debug.Log("sent");
-            }
-            else
-            {
-                Debug.Log("Connection is null");
-            }
+            string message = Client.Username + ": " + text;
+            byte[] messageBytes = Encoding.UTF8.GetBytes(message);
+            Client.CurrentConnection.SendReliableOrdered(messageBytes, DateTime.UtcNow);
+            CurrentText += message + "\n";
+            ChatText.text = CurrentText;
+            Debug.Log("sent");
         }
         else
         {

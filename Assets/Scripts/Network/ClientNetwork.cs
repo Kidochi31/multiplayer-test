@@ -13,7 +13,10 @@ public class ClientNetwork : MonoBehaviour
     void Start()
     {
         Socket = new RSocket();
-        Socket.BeginStun(NetworkHelper.StunHosts);
+        if(NetworkHelper.StunHosts.Count > 0)
+        {
+            Socket.BeginStun(NetworkHelper.StunHosts);
+        }
     }
 
     // Update is called once per frame

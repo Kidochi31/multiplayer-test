@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -26,13 +27,17 @@ public static class NetworkHelper
 
     static NetworkHelper()
     {
+        
         foreach (var (host, port) in stunHosts)
         {
-            foreach (IPAddress ip in Dns.GetHostAddresses(host))
-            {
-                StunHosts.Add(new IPEndPoint(ip, port));
-            }
+            try{
+                foreach (IPAddress ip in Dns.GetHostAddresses(host))
+                {
+                    StunHosts.Add(new IPEndPoint(ip, port));
+                }
+                } catch (Exception){}
         }
+        
 
     }
 
@@ -56,5 +61,39 @@ public static class NetworkHelper
         }
 
         return null;
+    }
+
+    public static IPEndPoint? GetIPEndPointFromText(string input)
+    {
+        input = input.Trim();
+        if (!input.Contains(':'))
+        {
+            return null;
+        }
+        string[] split = input.Split(':');
+        if(split.Length != 2)
+        {
+            return null;
+        }
+        string possibleIp = split[0];
+        possibleIp = possibleIp.Trim();
+        bool isIp = IPAddress.TryParse(possibleIp, out IPAddress? ip);
+        if (!isIp || ip is null)
+        {
+            return null;
+        }
+        string possiblePort = split[1];
+        possiblePort = possiblePort.Trim();
+        bool isPort = int.TryParse(possiblePort, out int port);
+        if (!isPort)
+        {
+            return null;
+        }
+        try{
+            return new IPEndPoint(ip, port);
+        } catch (Exception)
+        {
+            return null;
+        }
     }
 }
