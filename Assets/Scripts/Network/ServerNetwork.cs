@@ -8,6 +8,8 @@ using System.Net;
 public class ServerNetwork : MonoBehaviour
 {
     public RSocket Socket;
+    public bool IsOpenToLan {get; private set;} = false;
+    public Relanrel.Server? LanServer {get; private set;} = null;
     public List<IPEndPoint> NewConnections = new();
     public List<IPEndPoint> DeadConnections = new();
     public List<IPEndPoint> CurrentConnections = new();
@@ -33,5 +35,19 @@ public class ServerNetwork : MonoBehaviour
         {
             CurrentConnections.Remove(c);
         }
+        LanServer?.Tick();
+    }
+
+    public void CloseLan()
+    {
+        IsOpenToLan = false;
+        LanServer = null;
+
+    }
+
+    public void OpenToLan(string info)
+    {
+        LanServer = Relanrel.Server.CreateServer(6767, (ushort)Socket.InternalEndPoint.Port, 0x67676767, info);
+        IsOpenToLan = true;
     }
 }
