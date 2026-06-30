@@ -72,7 +72,6 @@ public class MicrophoneSender : MonoBehaviour
                     Span<float> monoSamples = AverageChannelledSamples(channelledSamples);
                     Span<byte> samples = ConvertFloatSamplesToShortBytes(monoSamples);
                     byte[] sampleArray = samples.ToArray();
-                    Debug.Log($"Sending: {sampleArray.Length}");
                     Client.CurrentConnection.SendUnreliableOrdered(sampleArray);
                 }
                 else
