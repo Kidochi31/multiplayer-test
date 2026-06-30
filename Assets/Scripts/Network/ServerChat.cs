@@ -52,6 +52,20 @@ public class ServerChat : MonoBehaviour
                     }
                 }
             }
+
+            while (connection.UnreliableOrderedMessagesAvailable)
+            {
+                // go through all messages and send them to all other clients
+                byte[] message = connection.DequeueUnreliableOrderedMessage();
+                foreach(IPEndPoint target in Server!.CurrentConnections)
+                {
+                    if (!target.Equals(endpoint))
+                    {
+                        Connection targetConnection = Server!.Socket.Connections[target];
+                        targetConnection.SendUnreliableOrdered(message);
+                    }
+                }
+            }
         }
     }
 }
