@@ -11,6 +11,7 @@ public class MicrophoneSender : MonoBehaviour
     private string? CurrentDevice = null;
     private int MicrophoneClipLength = 10;
     private int TargetSampleFrequency = 16000;
+    const int MaxSampleFactor = 5;
     private bool Recording = false;
     private AudioClip MicrophoneClip;
     private int NextMicrophoneSampleIndex = 0;
@@ -18,7 +19,7 @@ public class MicrophoneSender : MonoBehaviour
 
     private byte[] Payload = new byte[MaximumPayloadSize];
     private float[] MonoSamples = new float[MaximumPayloadSamples];
-    private float[] ChannelledSamples = new float[MaximumPayloadSamples * MaxChannels];
+    private float[] ChannelledSamples = new float[MaximumPayloadSamples * MaxChannels * MaxSampleFactor];
 
     void OnEnable()
     {
@@ -62,13 +63,14 @@ public class MicrophoneSender : MonoBehaviour
         {
             // position in microphone clip
             int currentPosition = Microphone.GetPosition(CurrentDevice);
+            int requiredInputSamples = Mathf.CeilToInt(MaximumPayloadSamples * (float)MicrophoneClip.frequency / TargetSampleFrequency);
             while(true){
                 int newSampleCount = (currentPosition - NextMicrophoneSampleIndex + MicrophoneClip.samples) % MicrophoneClip.samples;
                 // only send samples if there are sufficient samples available
-                if(newSampleCount >= MaximumPayloadSamples)
+                if(newSampleCount >= requiredInputSamples)
                 {
                     
-                    Span<float> channelledSamples = GenerateChannelledSamples(MaximumPayloadSamples);
+                    Span<float> channelledSamples = GenerateChannelledSamples(requiredInputSamples);
                     Span<float> monoSamples = AverageChannelledSamples(channelledSamples);
                     Span<byte> samples = ConvertFloatSamplesToShortBytes(monoSamples);
                     byte[] sampleArray = samples.ToArray();
@@ -106,20 +108,59 @@ public class MicrophoneSender : MonoBehaviour
         return ChannelledSamples.AsSpan(0, targetSamples * channels);
     }
 
+    // Span<float> AverageChannelledSamples(Span<float> channelledSamples)
+    // {
+    //     int channels = MicrophoneClip.channels;
+    //     int numSamples = channelledSamples.Length / channels;
+    //     Span<float> monoSamples = MonoSamples[..numSamples];
+    //     for(int i = 0; i < numSamples; i++)
+    //     {
+    //         float sum = 0;
+    //         for(int c = 0; c < channels; c++)
+    //         {
+    //             sum += channelledSamples[i * channels + c];
+    //         }
+    //         monoSamples[i] = sum / channels;
+    //     }
+    //     return monoSamples;
+    // }
+
     Span<float> AverageChannelledSamples(Span<float> channelledSamples)
     {
         int channels = MicrophoneClip.channels;
-        int numSamples = channelledSamples.Length / channels;
-        Span<float> monoSamples = MonoSamples[..numSamples];
-        for(int i = 0; i < numSamples; i++)
+
+        int inputFrames = channelledSamples.Length / channels;
+
+        int outputFrames = Mathf.CeilToInt(inputFrames * (float)TargetSampleFrequency / MicrophoneClip.frequency);
+
+        Span<float> monoSamples = MonoSamples.AsSpan(0, outputFrames);
+
+        float samplesPerOutput = (float)MicrophoneClip.frequency / TargetSampleFrequency;
+
+        for (int outFrame = 0; outFrame < outputFrames; outFrame++)
         {
+            float start = outFrame * samplesPerOutput;
+            float end   = (outFrame + 1) * samplesPerOutput;
+
+            int first = Mathf.FloorToInt(start);
+            int last  = Mathf.CeilToInt(end);
+
             float sum = 0;
-            for(int c = 0; c < channels; c++)
+            int count = 0;
+
+            for (int inFrame = first; inFrame < last && inFrame < inputFrames; inFrame++)
             {
-                sum += channelledSamples[i * channels + c];
+                for (int c = 0; c < channels; c++)
+                {
+                    sum += channelledSamples[inFrame * channels + c];
+                }
+                count++;
             }
-            monoSamples[i] = sum / channels;
+            sum = sum / channels;
+
+            monoSamples[outFrame] = count > 0 ? sum / count : 0;
         }
+
         return monoSamples;
     }
 
