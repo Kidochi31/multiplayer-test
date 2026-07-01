@@ -70,7 +70,7 @@ public class VoiceChatSpeaker : MonoBehaviour
 
     void OnDisable()
     {
-        Destroy(Source);
+        Source.Stop();
         Destroy(Clip);
     }
 
