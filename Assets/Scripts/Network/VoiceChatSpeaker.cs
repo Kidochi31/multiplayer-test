@@ -14,20 +14,14 @@ public class VoiceChatSpeaker : MonoBehaviour
     private float nextSample;
 
     private float phase;
-    private float OutputSampleRate;
+    private int OutputSampleRate;
 
     void OnEnable()
     {
-        Debug.Log(AudioSettings.outputSampleRate);
         OutputSampleRate = AudioSettings.outputSampleRate;
-        int capacity = SampleFrequency;
-        int targetLatency = SampleFrequency * 20 / 1000; // 40 ms delay
+        int capacity = OutputSampleRate;
+        int targetLatency = OutputSampleRate * 20 / 1000; // 40 ms delay
         Buffer = new JitterBuffer(capacity, targetLatency);
-        phase = 0f;
-        previousSample = 0;
-        nextSample = 0;
-        //Clip = AudioClip.Create("streaming clip", MicrophoneSender.MaximumPayloadSamples * 4, 1, SampleFrequency, true, OnAudioRead);
-        //Source.clip = Clip;
         Source.loop = true;
         Source.Play();
 
@@ -36,26 +30,7 @@ public class VoiceChatSpeaker : MonoBehaviour
 
     void OnAudioFilterRead(float[] data, int channels)
     {
-        float step = (float)SampleFrequency / OutputSampleRate;
-
-        for (int frame = 0; frame < data.Length / channels; frame++)
-        {
-            while (phase >= 1f)
-            {
-                previousSample = nextSample;
-                nextSample = Buffer.ReadSample();
-                phase -= 1f;
-            }
-
-            float sample = Mathf.Lerp(previousSample, nextSample, phase);
-
-            phase += step;
-
-            int index = frame * channels;
-
-            for (int c = 0; c < channels; c++)
-                data[index + c] = sample;
-        }
+        Buffer.ReadInterleaved(data, channels);
     }
 
     void OnAudioRead(float[] data)
@@ -70,7 +45,6 @@ public class VoiceChatSpeaker : MonoBehaviour
     public void EnqueueData(Span<float> data)
     {
         Buffer.Enqueue(data);
-        Debug.Log($"jitter buffer samples: {Buffer.BufferedSamples}");
     }
 
     void OnDisable()

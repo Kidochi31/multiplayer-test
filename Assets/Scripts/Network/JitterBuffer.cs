@@ -59,24 +59,47 @@ public sealed class JitterBuffer
     {
         lock (buffer)
         {
-            if (!started)
-                return 0;
+            return ReadSample_NoLock();
+        }
+    }
 
-            if (count == 0)
+    private float ReadSample_NoLock()
+    {
+        if (!started)
+            return 0;
+
+        if (count == 0)
+        {
+            started = false;
+            return 0;
+        }
+
+        float sample = buffer[readIndex];
+
+        readIndex++;
+        if (readIndex == buffer.Length)
+            readIndex = 0;
+
+        count--;
+
+        return sample;
+    }
+
+    public void ReadInterleaved(float[] output, int channels)
+    {
+        lock (buffer)
+        {
+            int frames = output.Length / channels;
+
+            for (int frame = 0; frame < frames; frame++)
             {
-                started = false;
-                return 0;
+                float sample = ReadSample_NoLock();
+
+                int index = frame * channels;
+
+                for (int c = 0; c < channels; c++)
+                    output[index + c] = sample;
             }
-
-            float sample = buffer[readIndex];
-
-            readIndex++;
-            if (readIndex == buffer.Length)
-                readIndex = 0;
-
-            count--;
-
-            return sample;
         }
     }
 
