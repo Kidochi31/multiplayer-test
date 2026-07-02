@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Linq;
 using UnityEngine;
 
@@ -7,65 +8,69 @@ public class VoiceChatSpeaker : MonoBehaviour
     public AudioSource Source;
     private AudioClip Clip;
     private int SampleFrequency = 16000;
-    private float[] SampleBuffer;
-    private int BufferStart;
-    private int BufferNext;
-    private int Count => (BufferNext - BufferStart + SampleBuffer.Length) % SampleBuffer.Length;
+    private JitterBuffer Buffer;
 
+    private float previousSample;
+    private float nextSample;
+
+    private float phase;
+    private float OutputSampleRate;
 
     void OnEnable()
     {
-        SampleBuffer = new float[SampleFrequency];
-        BufferStart = 0;
-        BufferNext = 0;
-        Clip = AudioClip.Create("streaming clip", SampleFrequency / 25, 1, SampleFrequency, true, OnAudioRead);
-        Source.clip = Clip;
+        Debug.Log(AudioSettings.outputSampleRate);
+        OutputSampleRate = AudioSettings.outputSampleRate;
+        int capacity = SampleFrequency;
+        int targetLatency = SampleFrequency * 40 / 1000; // 40 ms delay
+        Buffer = new JitterBuffer(capacity, targetLatency);
+        phase = 0f;
+        previousSample = 0;
+        nextSample = 0;
+        //Clip = AudioClip.Create("streaming clip", MicrophoneSender.MaximumPayloadSamples * 4, 1, SampleFrequency, true, OnAudioRead);
+        //Source.clip = Clip;
         Source.loop = true;
         Source.Play();
+
+        
+    }
+
+    void OnAudioFilterRead(float[] data, int channels)
+    {
+        float step = (float)SampleFrequency / OutputSampleRate;
+
+        for (int frame = 0; frame < data.Length / channels; frame++)
+        {
+            while (phase >= 1f)
+            {
+                previousSample = nextSample;
+                nextSample = Buffer.ReadSample();
+                phase -= 1f;
+            }
+
+            float sample = Mathf.Lerp(previousSample, nextSample, phase);
+
+            phase += step;
+
+            int index = frame * channels;
+
+            for (int c = 0; c < channels; c++)
+                data[index + c] = sample;
+        }
     }
 
     void OnAudioRead(float[] data)
     {
-        lock(SampleBuffer){
-            Span<float> target = data.AsSpan();
-            while(target.Length > 0)
-            {
-                if(Count > 0)
-                {
-                    Span<float> source = SampleBuffer.AsSpan(BufferStart);
-                    Span<float> writeSource = source.Length > target.Length ? source[0..target.Length] : source;
-                    if(writeSource.Length > Count)
-                    {
-                        writeSource = writeSource[0..Count];
-                    }
-                    writeSource.CopyTo(target);
-                    BufferStart = (BufferStart + writeSource.Length) % SampleBuffer.Length;
-                    target = target[writeSource.Length..];
-                }
-                else
-                {
-                    target.Fill(0f);
-                    target = Span<float>.Empty;
-                }
-            }
-        }
+        Debug.Log($"Played chunk at {DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff",CultureInfo.InvariantCulture)}");
+        Debug.Log($"buffer before read: {Buffer.BufferedSamples}");
+        Buffer.Read(data);
+        Debug.Log($"requested data: {data.Length}");
+        Debug.Log($"buffer after read: {Buffer.BufferedSamples}");
     }
 
     public void EnqueueData(Span<float> data)
     {
-        lock(SampleBuffer)
-        {
-            int dataLength = data.Length;
-            Span<float> target = SampleBuffer.AsSpan(BufferNext);
-            while(data.Length > 0)
-            {
-                Span<float> writeData = data.Length > target.Length ? data[0..target.Length] : data;
-                writeData.CopyTo(target);
-                data = data[writeData.Length..];
-                target = SampleBuffer.AsSpan();
-            }
-            BufferNext = (BufferNext + dataLength) % SampleBuffer.Length;
-        }
+        Buffer.Enqueue(data);
+        Debug.Log($"jitter buffer samples: {Buffer.BufferedSamples}");
     }
 
     void OnDisable()
@@ -77,6 +82,6 @@ public class VoiceChatSpeaker : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        Debug.Log($"Source time sampels: {Source.timeSamples}");
     }
 }
