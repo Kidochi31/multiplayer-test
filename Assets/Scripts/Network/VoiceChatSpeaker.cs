@@ -21,7 +21,7 @@ public class VoiceChatSpeaker : MonoBehaviour
         Debug.Log(AudioSettings.outputSampleRate);
         OutputSampleRate = AudioSettings.outputSampleRate;
         int capacity = SampleFrequency;
-        int targetLatency = SampleFrequency * 40 / 1000; // 40 ms delay
+        int targetLatency = SampleFrequency * 20 / 1000; // 40 ms delay
         Buffer = new JitterBuffer(capacity, targetLatency);
         phase = 0f;
         previousSample = 0;
@@ -82,6 +82,5 @@ public class VoiceChatSpeaker : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log($"Source time sampels: {Source.timeSamples}");
     }
 }

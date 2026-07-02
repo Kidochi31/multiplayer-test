@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class MicrophoneSender : MonoBehaviour
 {
-    public const int MaximumPayloadSize =  1024;
+    public const int MaximumPayloadSize =  512;
     public const int MaximumPayloadSamples = MaximumPayloadSize / sizeof(short);
     const int MaxChannels = 5;
     private string? CurrentDevice = null;
@@ -42,13 +42,6 @@ public class MicrophoneSender : MonoBehaviour
             // Start recording
             MicrophoneClip = Microphone.Start(CurrentDevice, true, MicrophoneClipLength, frequency);
             NextMicrophoneSampleIndex = 0;
-
-            Debug.Log("Mic frequency = " + MicrophoneClip.frequency);
-            Debug.Log("Output sample rate = " + AudioSettings.outputSampleRate);
-
-            AudioSettings.GetDSPBufferSize(out int bufferLength, out int numBuffers);
-
-            Debug.Log($"DSP: {bufferLength} x {numBuffers}");
         }
     }
 
@@ -71,7 +64,6 @@ public class MicrophoneSender : MonoBehaviour
         {
             // position in microphone clip
             int currentPosition = Microphone.GetPosition(CurrentDevice);
-            Debug.Log($"Microphone position: {Microphone.GetPosition(CurrentDevice)}");
             int requiredInputSamples = Mathf.CeilToInt(MaximumPayloadSamples * (float)MicrophoneClip.frequency / TargetSampleFrequency);
             while(true){
                 int newSampleCount = (currentPosition - NextMicrophoneSampleIndex + MicrophoneClip.samples) % MicrophoneClip.samples;
