@@ -33,14 +33,14 @@ public class VoiceChatSpeaker : MonoBehaviour
         Buffer.ReadInterleaved(data, channels);
     }
 
-    void OnAudioRead(float[] data)
-    {
-        Debug.Log($"Played chunk at {DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff",CultureInfo.InvariantCulture)}");
-        Debug.Log($"buffer before read: {Buffer.BufferedSamples}");
-        Buffer.Read(data);
-        Debug.Log($"requested data: {data.Length}");
-        Debug.Log($"buffer after read: {Buffer.BufferedSamples}");
-    }
+    // void OnAudioRead(float[] data)
+    // {
+    //     Debug.Log($"Played chunk at {DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff",CultureInfo.InvariantCulture)}");
+    //     Debug.Log($"buffer before read: {Buffer.BufferedSamples}");
+    //     Buffer.Read(data);
+    //     Debug.Log($"requested data: {data.Length}");
+    //     Debug.Log($"buffer after read: {Buffer.BufferedSamples}");
+    // }
 
     public void EnqueueData(Span<float> data)
     {

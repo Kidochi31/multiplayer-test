@@ -69,8 +69,6 @@ public class MicrophoneSender : MonoBehaviour
             int requiredInputSamples = Mathf.CeilToInt(MaximumPayloadSamples * (float)MicrophoneClip.frequency / TargetSampleFrequency);
             while(true){
                 int newSampleCount = (currentPosition - NextMicrophoneSampleIndex + MicrophoneClip.samples) % MicrophoneClip.samples;
-                Debug.Log($"Sample count: {newSampleCount}");
-                Debug.Log($"Requried samples: {requiredInputSamples}");
                 // only send samples if there are sufficient samples available
                 if(newSampleCount >= requiredInputSamples)
                 {

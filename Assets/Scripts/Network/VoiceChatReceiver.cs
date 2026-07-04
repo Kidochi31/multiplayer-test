@@ -16,6 +16,7 @@ public class VoiceChatReceiver : MonoBehaviour
     private double SourcePosition = 0f;
     private float PreviousSample = 0f;
     private bool HasPreviousSample = false;
+    public ushort? SourceClientId = null;
 
     private float[] Decoded = new float[MicrophoneSender.MaximumPayloadSamples];
     private float[] Output;
@@ -32,14 +33,15 @@ public class VoiceChatReceiver : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        foreach(UnreliableMessage message in Client.RecentUnreliableMessages)
-        {
-            if(message is AudioMessage audio)
+        if(SourceClientId is not null){
+            foreach(UnreliableMessage message in Client.RecentUnreliableMessages)
             {
-                byte[] data = audio.Message;
-                Debug.Log($"received: {data.Length}");
-                Span<float> samples = ConvertShortBytesToFloatSamplesUpsampled(data);
-                Speaker.EnqueueData(samples);
+                if(message is AudioMessage audio && audio.ClientId == SourceClientId)
+                {
+                    byte[] data = audio.Message;
+                    Span<float> samples = ConvertShortBytesToFloatSamplesUpsampled(data);
+                    Speaker.EnqueueData(samples);
+                }
             }
         }
     }

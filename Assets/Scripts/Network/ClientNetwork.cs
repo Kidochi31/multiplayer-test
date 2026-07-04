@@ -13,10 +13,12 @@ public class ClientNetwork : MonoBehaviour
     public string Username;
     public ushort ClientId;
     public Guid ClientGuid;
+    public ClientSideClient ThisClient;
     private Connection? CurrentConnection;
     public ClientState State = ClientState.Idle; 
     public List<ClientSideClient> CurrentClients = new();
     public List<ClientSideClient> NewClients = new();
+    public List<ClientSideClient> NewClientInfo = new();
     public List<ClientSideClient> DeadClients = new();
     public Dictionary<ushort, ClientSideClient> IdToClient = new();
     public List<ReliableMessage> RecentReliableMessages = new();
@@ -52,6 +54,7 @@ public class ClientNetwork : MonoBehaviour
         NewClients.Clear();
         DeadClients.Clear();
         IdToClient.Clear();
+        NewClientInfo.Clear();
         RecentReliableMessages.Clear();
         RecentUnreliableMessages.Clear();
 
@@ -74,6 +77,7 @@ public class ClientNetwork : MonoBehaviour
         RecentReliableMessages.Clear();
         RecentUnreliableMessages.Clear();
         NewClients.Clear();
+        NewClientInfo.Clear();
         foreach(ClientSideClient deadClient in DeadClients)
         {
             IdToClient.Remove(deadClient.ClientId);
@@ -165,6 +169,11 @@ public class ClientNetwork : MonoBehaviour
                 ClientSideClient client = new ClientSideClient(clientInfo.ClientId, clientInfo.Name);
                 CurrentClients.Add(client);
                 IdToClient[clientInfo.ClientId] = client;
+                if(clientInfo.ClientId == ClientId)
+                {
+                    ThisClient = client;
+                }
+                NewClientInfo.Add(client);
             }
             if(message is ClientJoinMessage clientJoin)
             {
