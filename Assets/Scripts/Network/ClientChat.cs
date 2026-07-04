@@ -29,14 +29,19 @@ public class ClientChat : MonoBehaviour
     {
         if(Client != null)
         {
-            while (Client.CurrentConnection.ReliableOrderedMessagesAvailable)
+            foreach(ReliableMessage message in Client.RecentReliableMessages)
             {
-                byte[] messageBytes = Client.CurrentConnection.DequeueReliableOrderedMessage()!;
-                string message = Encoding.UTF8.GetString(messageBytes);
-                CurrentText += message + "\n";
-                ChatText.text = CurrentText;
+                if(message is ChatMessage chat)
+                {
+                    CurrentText += Client.IdToClient[chat.ClientId].Name + ": " + chat.Message + "\n";
+                    ChatText.text = CurrentText;
+                }
+                if(message is ServerMessage server)
+                {
+                    CurrentText += "<server>: " + server.Message + "\n";
+                    ChatText.text = CurrentText;
+                }
             }
-
             
         }
         
@@ -54,8 +59,8 @@ public class ClientChat : MonoBehaviour
         if(Client != null)
         {
             string message = Client.Username + ": " + text;
-            byte[] messageBytes = Encoding.UTF8.GetBytes(message);
-            Client.CurrentConnection.SendReliableOrdered(messageBytes, DateTime.UtcNow);
+            SendChatMessage sendMessage = new SendChatMessage(message);
+            Client.SendMessage(sendMessage, DateTime.UtcNow);
             CurrentText += message + "\n";
             ChatText.text = CurrentText;
             Debug.Log("sent");

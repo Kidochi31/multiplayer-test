@@ -15,10 +15,10 @@ public class HostSetup : MonoBehaviour
         {
             ClientNetwork? client = FindAnyObjectByType<ClientNetwork>();
             ServerNetwork? server = FindAnyObjectByType<ServerNetwork>();
-            if(client != null && server != null && client.CurrentConnection is null && server.Socket.InternalEndPoint is not null)
+            if(client != null && server != null && client.State == ClientState.Idle && server.Socket.InternalEndPoint is not null)
             {
                 IPEndPoint target = new IPEndPoint(IPAddress.Loopback, server.Socket.InternalEndPoint.Port);
-                client.CurrentConnection = client.Socket.ConnectTo(target, DateTime.UtcNow);
+                client.ConnectTo(target, DateTime.UtcNow);
                 settingUp = false;
                 MenuChange.ChangeMenu();
             }

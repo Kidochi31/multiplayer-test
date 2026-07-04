@@ -25,7 +25,7 @@ public class LANOption : MonoBehaviour
         }
         ClientNetwork network = FindAnyObjectByType<ClientNetwork>();
         network.Username = UsernameField.text;
-        network.CurrentConnection = network.Socket.ConnectTo(TargetEndPoint, DateTime.UtcNow);
+        network.ConnectTo(TargetEndPoint, DateTime.UtcNow);
         JoiningMenu.SetActive(true);
     }
 }

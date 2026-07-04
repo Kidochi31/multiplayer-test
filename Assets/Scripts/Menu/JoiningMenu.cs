@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Relanrel;
 using Relunrel.Connections;
 using Relunrel.Network;
 using TMPro;
@@ -24,18 +25,13 @@ public class JoiningMenu : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Connection? connection = Network.CurrentConnection;
-        if(connection is null)
+        if(Network.State == ClientState.Disconnected)
         {
-            return;
-        }
-        if(connection.State == ConnectionState.Disconnected)
-        {
-            Network.CurrentConnection = null;
+            Network.Reset();
             ErrorText.text = ErrorMessage;
             BackButton.SetActive(true);
         }
-        if(connection.State == ConnectionState.Connected)
+        if(Network.State == ClientState.Connected)
         {
             Debug.Log("connected");
             Game.SetActive(true);

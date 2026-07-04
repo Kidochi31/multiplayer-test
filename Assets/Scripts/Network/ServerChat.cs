@@ -17,52 +17,53 @@ public class ServerChat : MonoBehaviour
     void Update()
     {
         // notify of any people leaving or joining
-        foreach(IPEndPoint endpoint in Server!.CurrentConnections)
+        foreach(ServerSideClient endpoint in Server!.CurrentClients)
         {
-            Connection connection = Server!.Socket.Connections[endpoint];
             // send people leaving
             {
-                foreach(IPEndPoint deadC in Server!.DeadConnections)
+                foreach(ServerSideClient deadC in Server!.DeadClients)
                 {
-                    string message = $"<server>: {deadC} has left.";
-                    byte[] messageBytes = Encoding.UTF8.GetBytes(message);
-                    connection.SendReliableOrdered(messageBytes, DateTime.UtcNow);
+                    string message = $"{deadC.Name} has left.";
+                    ServerMessage serverMessage = new ServerMessage(message);
+                    Message.SendMessage(endpoint.Connection, serverMessage, DateTime.UtcNow);
                 }
             }
             // send people joining
             {
-                foreach(IPEndPoint newC in Server!.NewConnections)
+                foreach(ServerSideClient deadC in Server!.NewClients)
                 {
-                    string message = $"<server>: {newC} has joined.";
-                    byte[] messageBytes = Encoding.UTF8.GetBytes(message);
-                    connection.SendReliableOrdered(messageBytes, DateTime.UtcNow);
+                    string message = $"{deadC.Name} has joined!";
+                    ServerMessage serverMessage = new ServerMessage(message);
+                    Message.SendMessage(endpoint.Connection, serverMessage, DateTime.UtcNow);
                 }
             }
             
-            while (connection.ReliableOrderedMessagesAvailable)
+            foreach(ReliableMessage reliableMessage in endpoint.RecentReliableMessages)
             {
-                // go through all messages and send them to all other clients
-                byte[] message = connection.DequeueReliableOrderedMessage();
-                foreach(IPEndPoint target in Server!.CurrentConnections)
+                if(reliableMessage is SendChatMessage chatMessage)
                 {
-                    if (!target.Equals(endpoint))
+                    ChatMessage message = new ChatMessage(endpoint.ClientId, chatMessage.Message);
+                    foreach(ServerSideClient target in Server!.CurrentClients)
                     {
-                        Connection targetConnection = Server!.Socket.Connections[target];
-                        targetConnection.SendReliableOrdered(message, DateTime.UtcNow);
+                        if (!target.Equals(endpoint))
+                        {
+                            Message.SendMessage(target.Connection, message, DateTime.UtcNow);
+                        }
                     }
                 }
             }
 
-            while (connection.UnreliableOrderedMessagesAvailable)
+            foreach(UnreliableMessage unreliableMessage in endpoint.RecentUnreliableMessages)
             {
-                // go through all messages and send them to all other clients
-                byte[] message = connection.DequeueUnreliableOrderedMessage();
-                foreach(IPEndPoint target in Server!.CurrentConnections)
+                if(unreliableMessage is SendAudioMessage audioMessage)
                 {
-                    if (!target.Equals(endpoint))
+                    AudioMessage message = new AudioMessage(endpoint.ClientId, audioMessage.Message);
+                    foreach(ServerSideClient target in Server!.CurrentClients)
                     {
-                        Connection targetConnection = Server!.Socket.Connections[target];
-                        targetConnection.SendUnreliableOrdered(message);
+                        if (!target.Equals(endpoint))
+                        {
+                            Message.SendMessage(target.Connection, message, DateTime.UtcNow);
+                        }
                     }
                 }
             }

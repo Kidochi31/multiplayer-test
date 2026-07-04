@@ -13,7 +13,7 @@ public class CheckDisconnect : MonoBehaviour
 
     public void Update()
     {
-        if(Client != null && Client.CurrentConnection.State == Relunrel.Connections.ConnectionState.Disconnected || Client.CurrentConnection.State == Relunrel.Connections.ConnectionState.FinWaitPassive)
+        if(Client != null && Client.State == ClientState.Disconnected || Client.State == ClientState.PassiveDisconnecting)
         {
             // disconnected
             OnDisconnect.ChangeMenu();

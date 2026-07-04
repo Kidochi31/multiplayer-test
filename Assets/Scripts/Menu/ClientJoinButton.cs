@@ -29,7 +29,7 @@ public class ClientJoinButton : MonoBehaviour
         }
         ClientNetwork network = FindAnyObjectByType<ClientNetwork>();
         network.Username = UsernameField.text;
-        network.CurrentConnection = network.Socket.ConnectTo(endpoint, DateTime.UtcNow);
+        network.ConnectTo(endpoint, DateTime.UtcNow);
         JoiningMenu.SetActive(true);
     }
 

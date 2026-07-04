@@ -25,11 +25,13 @@ public class MicrophoneSender : MonoBehaviour
     void OnEnable()
     {
         Client = FindAnyObjectByType<ClientNetwork>();
-
         if(Microphone.devices.Length > 0)
         {
             // start recording
             Recording = true;
+
+
+
 
             // default recording device
             CurrentDevice = null;
@@ -67,15 +69,18 @@ public class MicrophoneSender : MonoBehaviour
             int requiredInputSamples = Mathf.CeilToInt(MaximumPayloadSamples * (float)MicrophoneClip.frequency / TargetSampleFrequency);
             while(true){
                 int newSampleCount = (currentPosition - NextMicrophoneSampleIndex + MicrophoneClip.samples) % MicrophoneClip.samples;
+                Debug.Log($"Sample count: {newSampleCount}");
+                Debug.Log($"Requried samples: {requiredInputSamples}");
                 // only send samples if there are sufficient samples available
                 if(newSampleCount >= requiredInputSamples)
                 {
-                    
                     Span<float> channelledSamples = GenerateChannelledSamples(requiredInputSamples);
                     Span<float> monoSamples = AverageChannelledSamples(channelledSamples);
                     Span<byte> samples = ConvertFloatSamplesToShortBytes(monoSamples);
                     byte[] sampleArray = samples.ToArray();
-                    Client.CurrentConnection.SendUnreliableOrdered(sampleArray);
+                    SendAudioMessage message = new SendAudioMessage(sampleArray);
+
+                    Client.SendMessage(message, DateTime.UtcNow);
                     
                 }
                 else

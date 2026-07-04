@@ -11,7 +11,7 @@ public class VoiceChatReceiver : MonoBehaviour
     
     private int OutputRate;
     private readonly int InputRate = 16000;
-    Connection Connection;
+    ClientNetwork Client;
     float[] Samples;
     private double SourcePosition = 0f;
     private float PreviousSample = 0f;
@@ -26,17 +26,21 @@ public class VoiceChatReceiver : MonoBehaviour
     {
         OutputRate = AudioSettings.outputSampleRate;
         Samples = new float[Mathf.CeilToInt(MicrophoneSender.MaximumPayloadSamples * (float)OutputRate / InputRate) + 2];
-        Connection = FindAnyObjectByType<ClientNetwork>().CurrentConnection;
+        Client = FindAnyObjectByType<ClientNetwork>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        while (Connection.UnreliableOrderedMessagesAvailable)
+        foreach(UnreliableMessage message in Client.RecentUnreliableMessages)
         {
-            byte[] data = Connection.DequeueUnreliableOrderedMessage();
-            Span<float> samples = ConvertShortBytesToFloatSamplesUpsampled(data);
-            Speaker.EnqueueData(samples);
+            if(message is AudioMessage audio)
+            {
+                byte[] data = audio.Message;
+                Debug.Log($"received: {data.Length}");
+                Span<float> samples = ConvertShortBytesToFloatSamplesUpsampled(data);
+                Speaker.EnqueueData(samples);
+            }
         }
     }
 

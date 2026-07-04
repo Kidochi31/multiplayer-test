@@ -28,7 +28,7 @@ public class DisconnectingMenu : MonoBehaviour
             {
                 clientEndpoint = new(IPAddress.Loopback, Client.Socket.InternalEndPoint.Port);
             }
-            Client.CurrentConnection.Disconnect(DateTime.UtcNow);
+            Client.Disconnect(DateTime.UtcNow);
         }
 
         if(Server != null)
@@ -53,10 +53,10 @@ public class DisconnectingMenu : MonoBehaviour
         if(Client != null && Server == null)
         {
             // check if it has been disconnected
-            if(Client.CurrentConnection.State != ConnectionState.Disconnected)
+            if(Client.State != ClientState.Disconnected)
             {
                 shouldReset = false;
-                Debug.Log($"Client not yet disconnected: {Client.CurrentConnection.State}");
+                Debug.Log($"Client not yet disconnected: {Client.State}");
             }
         }
         if(Server != null)
