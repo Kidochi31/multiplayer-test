@@ -4,28 +4,13 @@ using UnityEngine.InputSystem;
 public class PlayerMovement : MonoBehaviour
 {
     public float playerSpeed = 5.0f;
+    public float rotateSpeed = 180f;
     public float jumpHeight = 1.5f;
     public float gravityValue = -9.81f;
 
     public CharacterController controller;
     private Vector3 playerVelocity;
     private bool groundedPlayer;
-
-    [Header("Input Actions")]
-    public InputActionReference moveAction;
-    public InputActionReference jumpAction;
-
-    private void OnEnable()
-    {
-        moveAction.action.Enable();
-        jumpAction.action.Enable();
-    }
-
-    private void OnDisable()
-    {
-        moveAction.action.Disable();
-        jumpAction.action.Disable();
-    }
 
     void Update()
     {
@@ -37,14 +22,15 @@ public class PlayerMovement : MonoBehaviour
             if (playerVelocity.y < -2f)
                 playerVelocity.y = -2f;
         }
+        // rotate
+        float playerRotate = KeyInput.GetStickBinding<CameraStick>().Value.x;
+        Debug.Log(playerRotate);
+        gameObject.transform.Rotate(Vector3.up, playerRotate * rotateSpeed * Time.deltaTime);
 
-        // Read input
-        Vector2 input = moveAction.action.ReadValue<Vector2>();
-        Vector3 move = new Vector3(input.x, 0, input.y);
-        move = Vector3.ClampMagnitude(move, 1f);
+        
 
         // Jump using WasPressedThisFrame()
-        if (groundedPlayer && jumpAction.action.WasPressedThisFrame())
+        if (groundedPlayer && KeyInput.GetKeyBinding<JumpKey>().DownThisFrame)
         {
             playerVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravityValue);
         }
@@ -53,7 +39,12 @@ public class PlayerMovement : MonoBehaviour
         playerVelocity.y += gravityValue * Time.deltaTime;
 
         // Move
+        Vector2 input = KeyInput.GetStickBinding<MoveStick>().Value;
+        Vector3 move = transform.forward * input.y + transform.right * input.x;
         Vector3 finalMove = move * playerSpeed + Vector3.up * playerVelocity.y;
         controller.Move(finalMove * Time.deltaTime);
+
+
+        
     }
 }

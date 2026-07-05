@@ -111,7 +111,6 @@ public class AudioMenu : MonoBehaviour
             // only save every so often
             if(DateTime.UtcNow >= LastSampleSaved + SaveSamplePeriod)
             {
-                Debug.Log("Saving sample");
                 LastSampleSaved = DateTime.UtcNow;
                 SaveMicrophoneData();
             }
