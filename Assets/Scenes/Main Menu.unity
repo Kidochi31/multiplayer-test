@@ -11348,10 +11348,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   playerSpeed: 5
-  rotateSpeed: 180
+  rotateSpeed: 360
+  cameraUpDownSpeed: 360
   jumpHeight: 1.5
   gravityValue: -9.81
+  minYAngle: -60
+  maxYAngle: 60
+  Camera: {fileID: 290916638}
   controller: {fileID: 986632083}
+  rotationX: 0
 --- !u!136 &986632085
 CapsuleCollider:
   m_ObjectHideFlags: 0

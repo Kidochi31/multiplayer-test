@@ -136,6 +136,7 @@ public class KeyInput
         {
             bool blocked = binding.InputType is null ? false : InputTypesBlocked[binding.InputType.Value];
             Vector2? stickValue = null;
+            Vector2? mouseValue = null;
             bool[] inputs = new bool[4];
 
             Stick? stick = binding.CurrentStick;
@@ -143,7 +144,9 @@ public class KeyInput
             if(gamepad is not null && stick is not null && !blocked)
             {
                 Vector2 rawValue = gamepad.GetStick(stick.Value).value;
+                Debug.Log(rawValue);
                 stickValue = binding.ProcessRawVector(rawValue);
+                Debug.Log(stickValue);
             }
 
             Keyboard? keyboard = Keyboard.current;
@@ -182,6 +185,11 @@ public class KeyInput
                         inputs[i] = true;
                     }
                 }
+
+                if (binding.UsesMouse)
+                {
+                    mouseValue = mouse.delta.value / Time.deltaTime * binding.MouseSensitivity * StickBinding.BASE_MOUSE_SENSITIVITY;
+                }
             }
             
             Vector2 value = new(0,0);
@@ -193,6 +201,7 @@ public class KeyInput
                     value += StickBinding.GetIndexVector(i);
                 }
             }
+            
 
             // now need to interpret stick results
             if(stickValue is not null)
@@ -203,6 +212,21 @@ public class KeyInput
                     value.x = xComponent;
                 }
                 float yComponent = stickValue.Value.y;
+                if(value.y == 0)
+                {
+                    value.y = yComponent;
+                }
+            }
+
+            // now need to interpret mouse results
+            if(mouseValue is not null)
+            {
+                float xComponent = mouseValue.Value.x;
+                if(value.x == 0)
+                {
+                    value.x = xComponent;
+                }
+                float yComponent = mouseValue.Value.y;
                 if(value.y == 0)
                 {
                     value.y = yComponent;

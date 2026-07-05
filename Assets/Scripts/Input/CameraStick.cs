@@ -7,7 +7,7 @@ public class CameraStick : StickBinding
 {
     public override Stick? DefaultStick => Stick.Right;
 
-    public override IReadOnlyList<Key?> DefaultKeys => new Key?[]{Key.RightArrow, Key.LeftArrow, null, null};
+    public override IReadOnlyList<Key?> DefaultKeys => new Key?[]{Key.RightArrow, Key.LeftArrow, Key.UpArrow, Key.DownArrow};
 
     public override IReadOnlyList<GamepadButton?> DefaultButtons => new GamepadButton?[]{null, null, null, null};
 
@@ -21,7 +21,9 @@ public class CameraStick : StickBinding
 
     public override bool HasMagnitudeDeadZone => false;
 
-    public override bool UsesYAxis => false;
+    public override bool UsesYAxis => true;
 
     public override bool UsesXAxis => true;
+
+    public override bool UsesMouse => true;
 }

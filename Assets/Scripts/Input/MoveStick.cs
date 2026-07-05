@@ -24,4 +24,6 @@ public class MoveStick : StickBinding
     public override bool UsesYAxis => true;
 
     public override bool UsesXAxis => true;
+
+    public override bool UsesMouse => false;
 }

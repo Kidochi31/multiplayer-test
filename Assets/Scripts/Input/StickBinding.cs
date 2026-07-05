@@ -13,6 +13,7 @@ public abstract class StickBinding
     public const int LEFT_INDEX = 1;
     public const int UP_INDEX = 2;
     public const int DOWN_INDEX = 3;
+    public const float BASE_MOUSE_SENSITIVITY = 0.002f;
 
     public static Vector2 GetIndexVector(int index)
     {
@@ -36,6 +37,7 @@ public abstract class StickBinding
     public abstract IReadOnlyList<Key?> DefaultKeys {get; }
     public abstract IReadOnlyList<GamepadButton?> DefaultButtons {get; }
     public abstract IReadOnlyList<MouseButton?> DefaultMouseButtons {get; }
+    public abstract bool UsesMouse {get;}
     public abstract int? InputType {get;}
     public abstract bool NormalisedAbove1 {get;}
     public abstract bool HasAxisDeadZone {get;}
@@ -52,7 +54,10 @@ public abstract class StickBinding
     public float XDeadZone = 0.2f;
     public float YDeadZone = 0.2f;
     public float MagnitudeDeadZone = 0.2f;
+    public bool InvertX = false;
+    public bool InvertY = false;
     public Vector2 Value = new Vector2(0,0);
+    public float MouseSensitivity = 1f;
 
 
     public Vector2 ProcessRawVector(Vector2 input)
@@ -64,6 +69,14 @@ public abstract class StickBinding
         if (!UsesYAxis)
         {
             input.y = 0;
+        }
+        if (InvertY)
+        {
+            input.y = -input.y;
+        }
+        if (InvertX)
+        {
+            input.x = -input.x;
         }
 
         if(HasAxisDeadZone)
@@ -90,7 +103,7 @@ public abstract class StickBinding
             }
             else
             {
-                input.y = (math.abs(input.x) - YDeadZone) / (1 - YDeadZone) * math.sign(input.x);
+                input.y = (math.abs(input.y) - YDeadZone) / (1 - YDeadZone) * math.sign(input.y);
             }
         }
 
