@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -16,6 +17,13 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 playerVelocity;
     private bool groundedPlayer;
     public float rotationX = 0f;
+
+    ClientNetwork? Client;
+
+    void OnEnable()
+    {
+        Client = FindAnyObjectByType<ClientNetwork>();
+    }
 
     void Update()
     {
@@ -57,5 +65,7 @@ public class PlayerMovement : MonoBehaviour
         Vector3 move = transform.forward * input.y + transform.right * input.x;
         Vector3 finalMove = move * playerSpeed + Vector3.up * playerVelocity.y;
         controller.Move(finalMove * Time.deltaTime);
+
+        Client.SendMessage(new SendPositionMessage(transform.position), DateTime.UtcNow);
     }
 }

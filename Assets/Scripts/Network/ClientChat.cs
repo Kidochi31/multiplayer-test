@@ -11,28 +11,12 @@ public class ClientChat : MonoBehaviour
     public TMP_Text ChatText;
     public TMP_InputField ChatInput;
     private ClientNetwork? Client;
-
-    public GameObject VoiceChatExample;
-    private Dictionary<ushort, GameObject> VoiceChatUsers = new();
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void OnEnable()
     {
         Client = FindAnyObjectByType<ClientNetwork>();
         CurrentText = "";
         ChatText.text = CurrentText;
-
-        VoiceChatUsers.Clear();
-        foreach(ClientSideClient client in Client.CurrentClients)
-        {
-            if (client.Equals(Client.ThisClient))
-            {
-                continue;
-            }
-            GameObject voiceChat = Instantiate(VoiceChatExample, transform);
-            VoiceChatUsers[client.ClientId] = voiceChat;
-            voiceChat.GetComponent<VoiceChatReceiver>().SourceClientId = client.ClientId;
-            voiceChat.SetActive(true);
-        }
     }
 
     // Update is called once per frame
@@ -40,31 +24,6 @@ public class ClientChat : MonoBehaviour
     {
         if(Client != null)
         {
-            foreach(ClientSideClient client in Client.DeadClients)
-            {
-                GameObject voicechat = VoiceChatUsers[client.ClientId];
-                VoiceChatUsers.Remove(client.ClientId);
-                Destroy(voicechat);
-            }
-            foreach(ClientSideClient client in Client.NewClientInfo)
-            {
-                if (client.Equals(Client.ThisClient))
-                {
-                    continue;
-                }
-                GameObject voiceChat = Instantiate(VoiceChatExample, transform);
-                VoiceChatUsers[client.ClientId] = voiceChat;
-                voiceChat.GetComponent<VoiceChatReceiver>().SourceClientId = client.ClientId;
-                voiceChat.SetActive(true);
-            }
-            foreach(ClientSideClient client in Client.NewClients)
-            {
-                GameObject voiceChat = Instantiate(VoiceChatExample, transform);
-                VoiceChatUsers[client.ClientId] = voiceChat;
-                voiceChat.GetComponent<VoiceChatReceiver>().SourceClientId = client.ClientId;
-                voiceChat.SetActive(true);
-            }
-
             foreach(ReliableMessage message in Client.RecentReliableMessages)
             {
                 if(message is ChatMessage chat)

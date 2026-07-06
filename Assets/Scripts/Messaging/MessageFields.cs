@@ -207,7 +207,7 @@ public static class MessageFields
         data = data[value.Length..];
         return true;
     }
-    public static byte[] ReadByteArray(ref ReadOnlySpan<byte> data)
+    public static byte[]? ReadByteArray(ref ReadOnlySpan<byte> data)
     {
         ushort? length = ReadUInt16(ref data);
         if(length is null) return null;
@@ -215,5 +215,28 @@ public static class MessageFields
         byte[] value = data[..length.Value].ToArray();
         data = data[length.Value..];
         return value;
+    }
+
+    // Vector3
+    public static int LengthVector3(Vector3 value)
+    {
+        return sizeof(float) * 3;
+    }
+    public static bool WriteVector3(ref Span<byte> data, Vector3 value)
+    {
+        if(!WriteFloat(ref data, value.x)) return false;
+        if(!WriteFloat(ref data, value.y)) return false;
+        if(!WriteFloat(ref data, value.z)) return false;
+        return true;
+    }
+    public static Vector3? ReadVector3(ref ReadOnlySpan<byte> data)
+    {
+        float? x = ReadFloat(ref data);
+        if(x is null) return null;
+        float? y = ReadFloat(ref data);
+        if(y is null) return null;
+        float? z = ReadFloat(ref data);
+        if(z is null) return null;
+        return new Vector3(x.Value, y.Value, z.Value);
     }
 }

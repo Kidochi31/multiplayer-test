@@ -25,6 +25,7 @@ public class VoiceChatReceiver : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void OnEnable()
     {
+        SourceClientId = GetComponentInParent<OtherClient>().ClientId;
         OutputRate = AudioSettings.outputSampleRate;
         Samples = new float[Mathf.CeilToInt(MicrophoneSender.MaximumPayloadSamples * (float)OutputRate / InputRate) + 2];
         Client = FindAnyObjectByType<ClientNetwork>();

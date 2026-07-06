@@ -51,6 +51,8 @@ public class ServerChat : MonoBehaviour
                         }
                     }
                 }
+
+                
             }
 
             foreach(UnreliableMessage unreliableMessage in endpoint.RecentUnreliableMessages)
@@ -58,6 +60,18 @@ public class ServerChat : MonoBehaviour
                 if(unreliableMessage is SendAudioMessage audioMessage)
                 {
                     AudioMessage message = new AudioMessage(endpoint.ClientId, audioMessage.Message);
+                    foreach(ServerSideClient target in Server!.CurrentClients)
+                    {
+                        if (!target.Equals(endpoint))
+                        {
+                            Message.SendMessage(target.Connection, message, DateTime.UtcNow);
+                        }
+                    }
+                }
+
+                if(unreliableMessage is SendPositionMessage positionMessage)
+                {
+                    PositionMessage message = new PositionMessage(endpoint.ClientId, positionMessage.Position);
                     foreach(ServerSideClient target in Server!.CurrentClients)
                     {
                         if (!target.Equals(endpoint))
