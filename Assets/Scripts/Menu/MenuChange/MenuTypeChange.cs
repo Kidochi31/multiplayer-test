@@ -8,7 +8,6 @@ public class MenuTypeChange : MenuChange
     {
         if(DisableType != null)
         {
-            Debug.Log(DisableType.GetType());
             foreach(Object menuObject in FindObjectsByType(DisableType.GetType(), FindObjectsInactive.Exclude, FindObjectsSortMode.None))
             {
                 MenuType menu = (MenuType)menuObject;

@@ -11,9 +11,12 @@ public class DisconnectingMenu : MonoBehaviour
     public UnityEvent OnDisconnectComplete;
     private ClientNetwork? Client;
     private ServerNetwork? Server;
+    public CheckDisconnect CheckDisconnect;
 
     void OnEnable()
     {
+        // disable checkdisconnect temporarily
+        CheckDisconnect.enabled = false;
         // once this is enabled, disconnect clients and servers
         Client = FindAnyObjectByType<ClientNetwork>();
         Server = FindAnyObjectByType<ServerNetwork>();
@@ -55,7 +58,6 @@ public class DisconnectingMenu : MonoBehaviour
             if(Client.State != ClientState.Disconnected)
             {
                 shouldReset = false;
-                Debug.Log($"Client not yet disconnected: {Client.State}");
             }
         }
         if(Server != null)
@@ -66,7 +68,6 @@ public class DisconnectingMenu : MonoBehaviour
                 if(c.State != ConnectionState.Disconnected)
                 {
                     shouldReset = false;
-                    Debug.Log($"Server not yet disconnected: {c.State}");
                 }
             }
         }
@@ -82,7 +83,8 @@ public class DisconnectingMenu : MonoBehaviour
             {
                 Destroy(Client.gameObject);
             }
-            
+            // reenable checkdisconnect
+            CheckDisconnect.enabled = true;
             OnDisconnectComplete.Invoke();
         }
     }

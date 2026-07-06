@@ -11,7 +11,6 @@ public class HostSetup : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log($"setting up info: {settingUp}");
         if (settingUp)
         {
             ClientNetwork? client = FindAnyObjectByType<ClientNetwork>();

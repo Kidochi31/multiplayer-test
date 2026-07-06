@@ -43,6 +43,7 @@ public class PlayerMovement : MonoBehaviour
         
 
         // Jump using WasPressedThisFrame()
+
         if (groundedPlayer && KeyInput.GetKeyBinding<JumpKey>().DownThisFrame)
         {
             playerVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravityValue);
@@ -56,9 +57,5 @@ public class PlayerMovement : MonoBehaviour
         Vector3 move = transform.forward * input.y + transform.right * input.x;
         Vector3 finalMove = move * playerSpeed + Vector3.up * playerVelocity.y;
         controller.Move(finalMove * Time.deltaTime);
-
-
-
-        
     }
 }

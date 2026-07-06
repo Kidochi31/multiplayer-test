@@ -33,7 +33,6 @@ public class JoiningMenu : MonoBehaviour
         }
         if(Network.State == ClientState.Connected)
         {
-            Debug.Log("connected");
             OnSuccess.Invoke();
         }
     }

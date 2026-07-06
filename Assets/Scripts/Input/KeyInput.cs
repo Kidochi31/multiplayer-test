@@ -54,7 +54,7 @@ public class KeyInput
                         InputTypeToKeyBindings.Add(inputType.Value, new(){instance});
                         if (!InputTypesBlocked.ContainsKey(inputType.Value))
                         {
-                            InputTypesBlocked.Add(inputType.Value, false);
+                            InputTypesBlocked.Add(inputType.Value, true);
                         }
                     }
                 }

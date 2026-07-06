@@ -94,12 +94,11 @@ public class ClientChat : MonoBehaviour
 
         if(Client != null)
         {
-            string message = Client.Username + ": " + text;
+            string message = text;
             SendChatMessage sendMessage = new SendChatMessage(message);
             Client.SendMessage(sendMessage, DateTime.UtcNow);
             CurrentText += message + "\n";
             ChatText.text = CurrentText;
-            Debug.Log("sent");
         }
         else
         {
