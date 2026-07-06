@@ -11,7 +11,6 @@ public class ClientChat : MonoBehaviour
     public TMP_Text ChatText;
     public TMP_InputField ChatInput;
     private ClientNetwork? Client;
-    public CheckDisconnect CheckDisconnect;
 
     public GameObject VoiceChatExample;
     private Dictionary<ushort, GameObject> VoiceChatUsers = new();
@@ -21,7 +20,6 @@ public class ClientChat : MonoBehaviour
         Client = FindAnyObjectByType<ClientNetwork>();
         CurrentText = "";
         ChatText.text = CurrentText;
-        CheckDisconnect.gameObject.SetActive(true);
 
         VoiceChatUsers.Clear();
         foreach(ClientSideClient client in Client.CurrentClients)

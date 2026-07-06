@@ -33,7 +33,6 @@ public class PlayerMovement : MonoBehaviour
 
         float cameraY = KeyInput.GetStickBinding<CameraStick>().Value.y;
         rotationX -= cameraY * cameraUpDownSpeed * Time.deltaTime;
-        Debug.Log(cameraY * cameraUpDownSpeed * Time.deltaTime);
 
         // Clamp the rotation so the camera doesn't flip over
         rotationX = Mathf.Clamp(rotationX, minYAngle, maxYAngle);

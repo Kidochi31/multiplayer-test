@@ -2,12 +2,13 @@ using System;
 using System.Net;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class ClientJoinButton : MonoBehaviour
 {
     public TMP_InputField UsernameField;
     public TMP_InputField AddressField;
-    public GameObject JoiningMenu;
+    public UnityEvent OnJoin;
 
     public void Join()
     {
@@ -30,7 +31,7 @@ public class ClientJoinButton : MonoBehaviour
         ClientNetwork network = FindAnyObjectByType<ClientNetwork>();
         network.Username = UsernameField.text;
         network.ConnectTo(endpoint, DateTime.UtcNow);
-        JoiningMenu.SetActive(true);
+        OnJoin.Invoke();
     }
 
     

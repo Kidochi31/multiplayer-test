@@ -144,9 +144,7 @@ public class KeyInput
             if(gamepad is not null && stick is not null && !blocked)
             {
                 Vector2 rawValue = gamepad.GetStick(stick.Value).value;
-                Debug.Log(rawValue);
                 stickValue = binding.ProcessRawVector(rawValue);
-                Debug.Log(stickValue);
             }
 
             Keyboard? keyboard = Keyboard.current;

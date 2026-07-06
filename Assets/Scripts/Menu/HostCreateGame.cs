@@ -1,11 +1,12 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class HostCreateGame : MonoBehaviour
 {
     public TMP_InputField UsernameField;
-    public GameObject NextMenu;
+    public UnityEvent OnCreateGame;
     public void CreateGame()
     {
         if(UsernameField.text == "")
@@ -19,6 +20,6 @@ public class HostCreateGame : MonoBehaviour
         ClientNetwork.Username = UsernameField.text;
         GameObject ServerObject = new GameObject("ServerNetwork");
         var ServerNetwork = ServerObject.AddComponent<ServerNetwork>();
-        NextMenu.SetActive(true);
+        OnCreateGame.Invoke();
     }
 }

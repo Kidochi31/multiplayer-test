@@ -5,6 +5,7 @@ using Relunrel.Connections;
 using Relunrel.Network;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class JoiningMenu : MonoBehaviour
 {
@@ -12,8 +13,7 @@ public class JoiningMenu : MonoBehaviour
     public TMP_Text ErrorText;
     private ClientNetwork Network;
     public string ErrorMessage;
-    public List<GameObject> ThisMenu;
-    public GameObject Game;
+    public UnityEvent OnSuccess;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void OnEnable()
     {
@@ -34,11 +34,7 @@ public class JoiningMenu : MonoBehaviour
         if(Network.State == ClientState.Connected)
         {
             Debug.Log("connected");
-            Game.SetActive(true);
-            foreach(GameObject gameObject in ThisMenu)
-            {
-                gameObject.SetActive(false);
-            }
+            OnSuccess.Invoke();
         }
     }
 }

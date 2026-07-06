@@ -1,9 +1,10 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public class CheckDisconnect : MonoBehaviour
 {
     private ClientNetwork? Client;
-    public MenuChangeButton OnDisconnect;
+    public UnityEvent OnDisconnect;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void OnEnable()
     {
@@ -16,7 +17,7 @@ public class CheckDisconnect : MonoBehaviour
         if(Client != null && Client.State == ClientState.Disconnected || Client.State == ClientState.PassiveDisconnecting)
         {
             // disconnected
-            OnDisconnect.ChangeMenu();
+            OnDisconnect.Invoke();
         }
     }
 }

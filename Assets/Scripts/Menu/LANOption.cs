@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class LANOption : MonoBehaviour
 {
@@ -9,7 +10,7 @@ public class LANOption : MonoBehaviour
     public TMP_InputField UsernameField;
     public IPEndPoint TargetEndPoint;
     public string Description;
-    public GameObject JoiningMenu;
+    public UnityEvent OnJoin;
 
     public void OnEnable()
     {
@@ -26,6 +27,6 @@ public class LANOption : MonoBehaviour
         ClientNetwork network = FindAnyObjectByType<ClientNetwork>();
         network.Username = UsernameField.text;
         network.ConnectTo(TargetEndPoint, DateTime.UtcNow);
-        JoiningMenu.SetActive(true);
+        OnJoin.Invoke();
     }
 }

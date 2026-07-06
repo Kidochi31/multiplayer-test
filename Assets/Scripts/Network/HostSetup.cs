@@ -1,16 +1,17 @@
 using System;
 using System.Net;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class HostSetup : MonoBehaviour
 {
     private bool settingUp = true;
-    public MenuChangeButton MenuChange;
-    public GameObject RemoveOnFailure;
+    public UnityEvent OnSetupComplete;
 
     // Update is called once per frame
     void Update()
     {
+        Debug.Log($"setting up info: {settingUp}");
         if (settingUp)
         {
             ClientNetwork? client = FindAnyObjectByType<ClientNetwork>();
@@ -20,7 +21,7 @@ public class HostSetup : MonoBehaviour
                 IPEndPoint target = new IPEndPoint(IPAddress.Loopback, server.Socket.InternalEndPoint.Port);
                 client.ConnectTo(target, DateTime.UtcNow);
                 settingUp = false;
-                MenuChange.ChangeMenu();
+                OnSetupComplete.Invoke();
             }
         }
     }

@@ -4,12 +4,11 @@ using System.Net;
 using Relunrel.Connections;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class DisconnectingMenu : MonoBehaviour
 {
-    public List<GameObject> ThisMenu;
-    public GameObject NewMenu;
-
+    public UnityEvent OnDisconnectComplete;
     private ClientNetwork? Client;
     private ServerNetwork? Server;
 
@@ -84,11 +83,7 @@ public class DisconnectingMenu : MonoBehaviour
                 Destroy(Client.gameObject);
             }
             
-            NewMenu.SetActive(true);
-            foreach(GameObject menu in ThisMenu)
-            {
-                menu.SetActive(false);
-            }
+            OnDisconnectComplete.Invoke();
         }
     }
 }
