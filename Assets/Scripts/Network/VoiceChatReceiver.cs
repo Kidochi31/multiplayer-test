@@ -3,6 +3,7 @@ using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Net;
 using Relunrel.Connections;
+using System.Linq;
 using UnityEngine;
 
 public class VoiceChatReceiver : MonoBehaviour
@@ -35,10 +36,12 @@ public class VoiceChatReceiver : MonoBehaviour
     void Update()
     {
         if(SourceClientId is not null){
+            //Debug.LogError($"Size of recent unreliable messages which are audiomessages: {(from m in Client.RecentUnreliableMessages where m is AudioMessage select 0).Count()}");
             foreach(UnreliableMessage message in Client.RecentUnreliableMessages)
             {
                 if(message is AudioMessage audio && audio.ClientId == SourceClientId)
                 {
+                    
                     byte[] data = audio.Message;
                     Span<float> samples = ConvertShortBytesToFloatSamplesUpsampled(data);
                     Speaker.EnqueueData(samples);

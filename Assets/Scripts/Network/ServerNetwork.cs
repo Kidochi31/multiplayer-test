@@ -161,8 +161,7 @@ public class ServerNetwork : MonoBehaviour
         }
         // send join response
         Message.SendMessage(connection, response, time);
-        // send client info
-        SendClientInfo(connection, time);
+        
 
         // add client to current clients
         ServerSideClient client = new ServerSideClient(connection, ep, response.Guid, ClientId, request.Name);
@@ -170,6 +169,8 @@ public class ServerNetwork : MonoBehaviour
         IdToClient[ClientId] = client;
         EndPointToClient[ep] = client;
         NewClients.Add(client);
+        // send client info
+        SendClientInfo(connection, time);
         SendNewClient(client, time);
         PendingConnections.Remove(ep);
     }

@@ -59,7 +59,7 @@ public class ServerChat : MonoBehaviour
             {
                 if(unreliableMessage is SendAudioMessage audioMessage)
                 {
-                    AudioMessage message = new AudioMessage(endpoint.ClientId, audioMessage.Message);
+                    AudioMessage message = new AudioMessage(endpoint.ClientId, audioMessage.Message, audioMessage.SequenceNumber);
                     foreach(ServerSideClient target in Server!.CurrentClients)
                     {
                         if (!target.Equals(endpoint))

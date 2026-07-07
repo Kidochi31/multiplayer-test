@@ -168,6 +168,7 @@ public class ClientNetwork : MonoBehaviour
             {
                 ClientSideClient client = new ClientSideClient(clientInfo.ClientId, clientInfo.Name);
                 CurrentClients.Add(client);
+                Debug.LogError("CLIENT ADDED");
                 IdToClient[clientInfo.ClientId] = client;
                 if(clientInfo.ClientId == ClientId)
                 {
@@ -179,6 +180,7 @@ public class ClientNetwork : MonoBehaviour
             {
                 ClientSideClient client = new ClientSideClient(clientJoin.ClientId, clientJoin.Name);
                 CurrentClients.Add(client);
+                Debug.LogError("CLIENT JOINED");
                 IdToClient[clientJoin.ClientId] = client;
                 NewClients.Add(client);
             }

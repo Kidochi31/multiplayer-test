@@ -6,6 +6,9 @@ public class InGameTest : MonoBehaviour
     void OnEnable()
     {
         Debug.Log("In game");
+        Application.SetStackTraceLogType(LogType.Log, StackTraceLogType.None);
+        Application.SetStackTraceLogType(LogType.Warning, StackTraceLogType.None);
+        Application.SetStackTraceLogType(LogType.Error, StackTraceLogType.None);
     }
 
 }

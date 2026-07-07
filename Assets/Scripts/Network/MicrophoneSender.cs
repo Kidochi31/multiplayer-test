@@ -11,7 +11,7 @@ public class MicrophoneSender : MonoBehaviour
     const int MaxChannels = 5;
     private string? CurrentDevice = null;
     private int MicrophoneClipLength = 10;
-    private int TargetSampleFrequency = 16000;
+    private int TargetSampleFrequency = 16000;//16000;
     const int MaxSampleFactor = 5;
     private bool Recording = false;
     private AudioClip MicrophoneClip;
@@ -43,6 +43,7 @@ public class MicrophoneSender : MonoBehaviour
             }
             // Start recording
             MicrophoneClip = Microphone.Start(CurrentDevice, true, MicrophoneClipLength, frequency);
+            Debug.LogError($"Recording frequency = {MicrophoneClip.frequency}");
             NextMicrophoneSampleIndex = 0;
         }
     }
@@ -59,6 +60,10 @@ public class MicrophoneSender : MonoBehaviour
         }
     }
 
+    int seq = 0;
+    const int MaxPacketsPerFrame = 4;
+    const int MaxBacklog = MaximumPayloadSamples * 4;
+
     // Update is called once per frame
     void Update()
     {
@@ -67,18 +72,29 @@ public class MicrophoneSender : MonoBehaviour
             // position in microphone clip
             int currentPosition = Microphone.GetPosition(CurrentDevice);
             int requiredInputSamples = Mathf.CeilToInt(MaximumPayloadSamples * (float)MicrophoneClip.frequency / TargetSampleFrequency);
-            while(true){
+            int packets = 0;
+            while(true && packets < MaxPacketsPerFrame){
                 int newSampleCount = (currentPosition - NextMicrophoneSampleIndex + MicrophoneClip.samples) % MicrophoneClip.samples;
+                
+                if (newSampleCount > MaxBacklog)
+                {
+                    NextMicrophoneSampleIndex =
+                        (currentPosition - MaxBacklog + MicrophoneClip.samples)
+                        % MicrophoneClip.samples;
+
+                    newSampleCount = MaxBacklog;
+                }
                 // only send samples if there are sufficient samples available
                 if(newSampleCount >= requiredInputSamples)
                 {
                     Span<float> channelledSamples = GenerateChannelledSamples(requiredInputSamples);
+
                     Span<float> monoSamples = AverageChannelledSamples(channelledSamples);
                     Span<byte> samples = ConvertFloatSamplesToShortBytes(monoSamples);
                     byte[] sampleArray = samples.ToArray();
-                    SendAudioMessage message = new SendAudioMessage(sampleArray);
-
+                    SendAudioMessage message = new SendAudioMessage(sampleArray, seq++);
                     Client.SendMessage(message, DateTime.UtcNow);
+                    packets++;
                     
                 }
                 else

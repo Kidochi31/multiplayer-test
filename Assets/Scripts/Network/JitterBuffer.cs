@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 public sealed class JitterBuffer
 {
@@ -51,7 +52,10 @@ public sealed class JitterBuffer
             }
 
             if (!started && count >= targetLatencySamples)
+            {
                 started = true;
+            }
+                
         }
     }
 
@@ -87,6 +91,7 @@ public sealed class JitterBuffer
 
     public void ReadInterleaved(float[] output, int channels)
     {
+
         lock (buffer)
         {
             int frames = output.Length / channels;
